@@ -21,7 +21,8 @@ export default async function DashboardPage() {
       {profile?.class && <p>Class: {profile.class}</p>}
       {profile?.board && <p>Board: {profile.board}</p>}
       {profile?.stream && <p>Stream: {profile.stream}</p>}
-      <Link href="/profile">Edit Student Profile →</Link>
+      <p><Link href="/profile">Edit Student Profile →</Link></p>
+      <p><Link href="/messages/new">Start a Conversation →</Link></p>
     </main>
   )
 }
