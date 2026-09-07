@@ -27,12 +27,15 @@ export default async function ConversationPage({
     .eq('conversation_id', conversationId)
 
   const otherMember = members?.find((member) => member.user_id !== user.id)
+  const otherProfile = Array.isArray(otherMember?.profiles)
+    ? otherMember.profiles[0]
+    : otherMember?.profiles
 
   return (
     <main>
       <Link href="/messages/new">← New Conversation</Link>
-      <h1>{otherMember?.profiles?.display_name ?? otherMember?.profiles?.username ?? 'Conversation'}</h1>
-      <p>{otherMember?.profiles?.username ? `@${otherMember.profiles.username}` : ''}</p>
+      <h1>{otherProfile?.display_name ?? otherProfile?.username ?? 'Conversation'}</h1>
+      <p>{otherProfile?.username ? `@${otherProfile.username}` : ''}</p>
       <p>Private conversation foundation ready. Messaging UI next milestone mein add hoga.</p>
     </main>
   )
