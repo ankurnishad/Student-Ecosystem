@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { normalizeUsername } from '@/lib/auth/username'
 
@@ -25,7 +25,7 @@ const emptyProfile: Profile = {
 }
 
 export default function ProfilePage() {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [profile, setProfile] = useState<Profile>(emptyProfile)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -193,18 +193,7 @@ export default function ProfilePage() {
 
       <form onSubmit={saveProfile} style={{ display: 'grid', gap: 16 }}>
         <section>
-          <div
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              background: '#e5e7eb',
-              display: 'grid',
-              placeItems: 'center',
-              fontSize: 40,
-            }}
-          >
+          <div style={{ width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', background: '#e5e7eb', display: 'grid', placeItems: 'center', fontSize: 40 }}>
             {avatarPreview ? <img src={avatarPreview} alt="Profile avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👤'}
           </div>
           <label>
