@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
@@ -20,6 +21,7 @@ export default async function DashboardPage() {
       {profile?.class && <p>Class: {profile.class}</p>}
       {profile?.board && <p>Board: {profile.board}</p>}
       {profile?.stream && <p>Stream: {profile.stream}</p>}
+      <Link href="/profile">Edit Student Profile →</Link>
     </main>
   )
 }
