@@ -59,7 +59,7 @@ export default function GroupThread({ groupId, currentUserId }: { groupId: strin
       if (!active) return
       const loaded = (messageResult.data ?? []) as Message[]
       setMessages(loaded)
-      setMembers((memberResult.data ?? []) as Member[])
+      setMembers((memberResult.data ?? []) as unknown as Member[])
       const next: Record<string, Pin> = {}
       for (const pin of (pinResult.data ?? []) as Pin[]) next[pin.message_id] = pin
       setPins(next)
