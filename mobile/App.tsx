@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Button, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Button, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { supabase } from './lib/supabase'
 import ProfileScreen from './screens/ProfileScreen'
@@ -18,20 +18,14 @@ function Login({ onLoggedIn }: { onLoggedIn: () => void }) {
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email: `${normalized}@auth.student-ecosystem.local`, password })
     setLoading(false)
-    if (error) return
-    onLoggedIn()
+    if (!error) onLoggedIn()
   }
-  return <View style={styles.login}><Text style={styles.title}>Student Ecosystem</Text><Text style={styles.sub}>Username + password</Text><TextInputCompat value={username} onChange={setUsername} placeholder="Username"/><TextInputCompat value={password} onChange={setPassword} placeholder="Password" secure/><Button title={loading ? 'Signing in…' : 'Sign in'} onPress={() => void signIn()} disabled={loading}/></View>
-}
-
-function TextInputCompat({ value, onChange, placeholder, secure = false }: { value: string; onChange: (v: string) => void; placeholder: string; secure?: boolean }) {
-  const { TextInput } = require('react-native') as typeof import('react-native')
-  return <TextInput autoCapitalize="none" autoCorrect={false} placeholder={placeholder} secureTextEntry={secure} value={value} onChangeText={onChange} style={styles.input}/>
+  return <View style={styles.login}><Text style={styles.title}>Student Ecosystem</Text><Text style={styles.sub}>Username + password</Text><TextInput autoCapitalize="none" autoCorrect={false} placeholder="Username" value={username} onChangeText={setUsername} style={styles.input}/><TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input}/><Button title={loading ? 'Signing in…' : 'Sign in'} onPress={() => void signIn()} disabled={loading}/></View>
 }
 
 function Home({ userId, onSignOut }: { userId: string; onSignOut: () => void }) {
   const [tab, setTab] = useState<Tab>('Home')
-  return <View style={styles.root}><View style={styles.content}>{tab === 'Home' && <View><Text style={styles.title}>Student Ecosystem</Text><Text style={styles.sub}>Android client connected to the same Supabase backend and RLS.</Text></View>}{tab === 'Profile' && <ProfileScreen/>}{tab === 'Messages' && <MessagesScreen/>}{tab === 'Groups' && <GroupsScreen/>}</View><View style={styles.nav}>{(['Home','Profile','Messages','Groups'] as Tab[]).map(item => <Button key={item} title={item} onPress={() => setTab(item)}/>)}</View><Button title="Sign out" onPress={onSignOut}/></View>
+  return <View style={styles.root}><View style={styles.content}>{tab === 'Home' && <View style={styles.home}><Text style={styles.title}>Student Ecosystem</Text><Text style={styles.sub}>Android client connected to the same Supabase backend and RLS.</Text></View>}{tab === 'Profile' && <ProfileScreen/>}{tab === 'Messages' && <MessagesScreen/>}{tab === 'Groups' && <GroupsScreen/>}</View><View style={styles.nav}>{(['Home','Profile','Messages','Groups'] as Tab[]).map(item => <Button key={item} title={item} onPress={() => setTab(item)}/>)}</View><Button title="Sign out" onPress={onSignOut}/></View>
 }
 
 export default function App() {
@@ -42,4 +36,4 @@ export default function App() {
   return <SafeAreaView style={styles.safe}><StatusBar style="auto"/>{session?.user ? <Home userId={session.user.id} onSignOut={() => void supabase.auth.signOut()}/> : <Login onLoggedIn={() => void supabase.auth.getSession().then(({ data }) => setSession(data.session))}/>}</SafeAreaView>
 }
 
-const styles = StyleSheet.create({ safe:{flex:1}, root:{flex:1}, center:{flex:1,alignItems:'center',justifyContent:'center'}, content:{flex:1}, login:{margin:20,padding:20,borderWidth:1,borderColor:'#ddd',borderRadius:16,gap:12}, title:{fontSize:28,fontWeight:'700'}, sub:{fontSize:15,opacity:.65}, input:{borderWidth:1,borderColor:'#ccc',borderRadius:10,padding:12,fontSize:16}, nav:{flexDirection:'row',justifyContent:'space-around',padding:6,borderTopWidth:1,borderColor:'#ddd'} })
+const styles = StyleSheet.create({ safe:{flex:1}, root:{flex:1}, center:{flex:1,alignItems:'center',justifyContent:'center'}, content:{flex:1}, home:{padding:20}, login:{margin:20,padding:20,borderWidth:1,borderColor:'#ddd',borderRadius:16,gap:12}, title:{fontSize:28,fontWeight:'700'}, sub:{fontSize:15,opacity:.65}, input:{borderWidth:1,borderColor:'#ccc',borderRadius:10,padding:12,fontSize:16}, nav:{flexDirection:'row',justifyContent:'space-around',padding:6,borderTopWidth:1,borderColor:'#ddd'} })
