@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+type Profile = { display_name: string | null; username: string | null }
+type Member = { user_id: string; profiles: Profile | Profile[] | null }
+
 export default async function ConversationPage({
   params,
 }: {
@@ -21,15 +24,15 @@ export default async function ConversationPage({
 
   if (!conversation) notFound()
 
-  const { data: members } = await supabase
+  const { data: rawMembers } = await supabase
     .from('conversation_members')
     .select('user_id, profiles(display_name, username)')
     .eq('conversation_id', conversationId)
 
-  const otherMember = members?.find((member) => member.user_id !== user.id)
-  const otherProfile = Array.isArray(otherMember?.profiles)
-    ? otherMember.profiles[0]
-    : otherMember?.profiles
+  const members = (rawMembers ?? []) as Member[]
+  const otherMember = members.find((member) => member.user_id !== user.id)
+  const profile = otherMember?.profiles
+  const otherProfile = Array.isArray(profile) ? profile[0] : profile
 
   return (
     <main>
