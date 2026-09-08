@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Student Ecosystem",
+    "slug": "student-ecosystem",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.studentecosystem.app"
+    }
+  }
+}
