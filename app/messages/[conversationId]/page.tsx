@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import MessageThread from './MessageThread'
 
 type Profile = { display_name: string | null; username: string | null }
 type Member = { user_id: string; profiles: Profile | Profile[] | null }
@@ -35,11 +36,11 @@ export default async function ConversationPage({
   const otherProfile = Array.isArray(profile) ? profile[0] : profile
 
   return (
-    <main>
+    <main style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
       <Link href="/messages/new">← New Conversation</Link>
       <h1>{otherProfile?.display_name ?? otherProfile?.username ?? 'Conversation'}</h1>
       <p>{otherProfile?.username ? `@${otherProfile.username}` : ''}</p>
-      <p>Private conversation foundation ready. Messaging UI next milestone mein add hoga.</p>
+      <MessageThread conversationId={conversationId} currentUserId={user.id} />
     </main>
   )
 }
