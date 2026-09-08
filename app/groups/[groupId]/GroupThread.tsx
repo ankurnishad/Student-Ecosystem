@@ -12,6 +12,8 @@ export default function GroupThread({ groupId, currentUserId }: { groupId: strin
   const [replyTo, setReplyTo] = useState<Message | null>(null)
   const [typing, setTyping] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
+  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     let active = true
@@ -25,9 +27,14 @@ export default function GroupThread({ groupId, currentUserId }: { groupId: strin
         const message = payload.new as Message
         setMessages((current) => current.map((m) => m.id === message.id ? message : m))
       })
-      .on('broadcast', { event: 'typing' }, (payload) => { if (payload.payload?.user_id !== currentUserId) { setTyping(true); window.setTimeout(() => setTyping(false), 1500) } })
-      .subscribe()
-    return () => { active = false; void supabase.removeChannel(channel) }
+      .on('broadcast', { event: 'typing' }, (payload) => {
+        if (payload.payload?.user_id === currentUserId) return
+        setTyping(true)
+        if (typingTimer.current) clearTimeout(typingTimer.current)
+        typingTimer.current = setTimeout(() => setTyping(false), 1500)
+      })
+      .subscribe((status) => { if (status === 'SUBSCRIBED') channelRef.current = channel })
+    return () => { active = false; if (typingTimer.current) clearTimeout(typingTimer.current); channelRef.current = null; void supabase.removeChannel(channel) }
   }, [currentUserId, groupId, supabase])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages.length])
@@ -39,7 +46,7 @@ export default function GroupThread({ groupId, currentUserId }: { groupId: strin
     setText(''); setReplyTo(null)
   }
 
-  function changeText(value: string) { setText(value); if (value.trim()) void supabase.channel(`group:${groupId}`).send({ type: 'broadcast', event: 'typing', payload: { user_id: currentUserId } }) }
+  function changeText(value: string) { setText(value); if (value.trim() && channelRef.current) void channelRef.current.send({ type: 'broadcast', event: 'typing', payload: { user_id: currentUserId } }) }
 
   return <section style={{ display: 'grid', gap: 10 }}>
     <div style={{ minHeight: 420, maxHeight: 620, overflowY: 'auto', border: '1px solid #ddd', borderRadius: 16, padding: 16 }}>
@@ -47,7 +54,7 @@ export default function GroupThread({ groupId, currentUserId }: { groupId: strin
       <div ref={bottomRef} />
     </div>
     {typing && <small>Someone is typing…</small>}
-    {replyTo && <div>Replying to: {replyTo.content.slice(0, 80)} <button onClick={() => setReplyTo(null)}>Cancel</button></div>}
+    {replyTo && <div>Replying to: {replyTo.content.slice(0, 80)} <button type="button" onClick={() => setReplyTo(null)}>Cancel</button></div>}
     <form onSubmit={send} style={{ display: 'flex', gap: 8 }}><input value={text} onChange={(e) => changeText(e.target.value)} placeholder="Message group…" maxLength={4000} /><button type="submit">Send</button></form>
   </section>
 }
